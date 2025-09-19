@@ -33,8 +33,8 @@ router.post('/login', async (req, res) => {
         const { aadharCardNumber, password } = req.body;
         const user = await User.findOne({ aadharCardNumber: aadharCardNumber })
 
-        if (!user || !(await user.comparepassword(password))) {
-            return res.status(401).json({ error: 'Invalid username and password' })
+        if (!user || !(await user.comparePassword(password))) {
+            return res.status(401).json({ error: 'Invalid username and password' });
         }
 
         const payload = {
@@ -63,11 +63,11 @@ router.get('/profile', jwtAuthMiddleware, async (req, res) => {
 
 router.put('/profile/password', jwtAuthMiddleware, async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.user.id;
         const { currentPassword, newPassword } = req.body;
         const user = await User.findById(userId);
 
-        if (!(await user.comparepassword(currentPassword))) {
+        if (!(await user.comparePassword(currentPassword))) {
             return res.status(401).json({ error: 'Invalid current password ' })
         }
 
@@ -79,6 +79,7 @@ router.put('/profile/password', jwtAuthMiddleware, async (req, res) => {
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: 'Internal server error ' })
+        res.status(500).json({ error: "Internal server error", details: err.message });
     }
 })
 module.exports = router;
